@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/bootstrap.min.css">
+</head>
+<body>
+    <%- include('/admin/partials/navbar.ejs') %>
+    <div class="container mt-5">
+        <h1>Profile Settings</h1>
+        
+        <div class="card">
+            <div class="card-body">
+                <!-- Trenutna slika -->
+                <div class="text-center mb-4">
+                    <img src="<%= user.profileImage %>" 
+                         alt="Profile" 
+                         class="rounded-circle" 
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                </div>
+                
+                <!-- Upload forma -->
+                <form action="/admin/profile/upload" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Upload nova profilna slika</label>
+                        <input type="file" 
+                               name="profileImage" 
+                               class="form-control" 
+                               accept="image/*"   
+                               required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
