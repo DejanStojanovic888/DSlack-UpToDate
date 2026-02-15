@@ -13,7 +13,14 @@ const LoginController = async (req, res) => {
             return res.redirect("/");
         }
         req.session.user = user;  
-        res.redirect("/admin/dashboard");
+        req.session.save((err) => {
+            if (err) {
+                console.log("Session Save Error:", err);
+                return res.redirect("/login");
+            }
+            res.redirect("/admin/dashboard");  // redirect inside the callback to ensure it happens after the session is saved
+        });
+        // res.redirect("/admin/dashboard");
 
     } catch (error) {
         console.log(error.message);
