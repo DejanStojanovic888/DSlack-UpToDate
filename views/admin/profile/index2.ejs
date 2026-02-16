@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/bootstrap.min.css">
+</head>
+<body>
+    <%- include('/admin/profile/profileNavbar.ejs') %>
+    <div class="container mt-5">
+        <h1>Profile Settings</h1>
+        
+        <!-- Profilna slika -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Profilna slika</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <img src="<%= user.profileImage %>" 
+                         alt="Profile" 
+                         class="rounded-circle" 
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                </div>
+                
+                <form action="/admin/profile/upload" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Upload nova profilna slika</label>
+                        <input type="file" 
+                               name="profileImage" 
+                               class="form-control" 
+                               accept="image/*"   
+                               required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload sliku</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Ažuriranje profila -->
+        <div class="card mb-5">
+            <div class="card-header">
+                <h5>Informacije o profilu</h5>
+            </div>
+            <div class="card-body">
+                <form action="/admin/profile/update" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" 
+                               name="username" 
+                               class="form-control" 
+                               value="<%= user.username %>"
+                               minlength="3"
+                               maxlength="20"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" 
+                               name="email" 
+                               class="form-control" 
+                               value="<%= user.email %>"
+                               required>
+                    </div>
+
+                    <hr>
+                    <h6 class="mb-3">Promeni šifru (ostavi prazno ako ne želiš da menjaš)</h6>
+
+                    <div class="mb-3">
+                        <label class="form-label">Trenutna šifra</label>
+                        <input type="password" 
+                               name="currentPassword" 
+                               class="form-control"
+                               placeholder="Unesi trenutnu šifru">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nova šifra</label>
+                        <input type="password" 
+                               name="newPassword" 
+                               class="form-control"
+                               minlength="5"
+                               placeholder="Unesi novu šifru">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Potvrdi novu šifru</label>
+                        <input type="password" 
+                               name="confirmPassword" 
+                               class="form-control"
+                               minlength="5"
+                               placeholder="Potvrdi novu šifru">
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Sačuvaj izmene</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

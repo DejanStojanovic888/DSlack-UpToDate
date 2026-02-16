@@ -8,6 +8,7 @@ const router = express.Router();
 // Profile routes
 router.get('/profile', ProfileController.index);
 router.post('/profile/upload', upload.single('profileImage'), ProfileController.uploadImage); // .single znaci da očekujemo jedan fajl oznacen sa name="profileImage" iz inputa forme
+router.post('/profile/update', ProfileController.update);
 
 
 router.get('/dashboard', require('../controllers/admin/DashboardController.js'))
