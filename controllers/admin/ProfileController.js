@@ -1,10 +1,17 @@
 const User = require('../../models/User');
 const fs = require('fs');  
 const path = require('path');  
+const bcrypt = require('bcryptjs');
+//  using bcrypt.compare() and bcrypt.genSalt() without importing the bcryptjs package at the top of the file.
+//  bcrypt is undefined, which causes an error and likely destroys your session.
 
 const index = async (req, res) => {
     const user = await User.findById(req.session.user._id);
-    res.render('admin/profile/index2', { user, title: 'Profile' });
+    const message = req.session.message || '';
+    if (req.session.message) {
+        delete req.session.message;
+    }
+    res.render('admin/profile/index3', { user, title: 'Profile', message });
 };
 
 const uploadImage = async (req, res) => {
@@ -40,46 +47,99 @@ const uploadImage = async (req, res) => {
     }
 };
 
+
+
+// GET: Prikaži edit formu
+const showEdit = async (req, res) => {
+    const user = await User.findById(req.session.user._id);
+    res.render('admin/profile/edit', { user, title: 'Edit Profile' });
+};
+
+// POST: Ažuriraj profile
 const update = async (req, res) => {
     try {
-        const { username, email, currentPassword, newPassword, confirmPassword } = req.body;
+        const { 
+            username, 
+            email, 
+            newPassword, 
+            confirmNewPassword, 
+            currentEmail, 
+            currentPassword 
+        } = req.body;
+
+        // Validacija obaveznih polja (za sigurnosnu proveru)
+        if (!currentEmail || !currentPassword) {
+            console.log('Trenutni email i šifra su obavezni');
+            return res.redirect('/admin/profile/edit');
+        }
+
         const user = await User.findById(req.session.user._id);
 
-        // Validacija username-a
-        if (!username || username.length < 3 || username.length > 20) {
-            console.log('Invalid username');
-            return res.redirect('/admin/profile');
+        // SIGURNOSNA PROVERA 1: Trenutni email
+        if (user.email !== currentEmail) {
+            console.log('Trenutni email se ne poklapa');
+            return res.redirect('/admin/profile/edit');
         }
 
-        // Proveri da li email već postoji u bazi (osim za trenutnog usera)
-        const existingUser = await User.findOne({ email: email, _id: { $ne: user._id } });  // $ne = "not equal"
-        if (existingUser) {
-            console.log('Email već postoji');
-            return res.redirect('/admin/profile');
+        // SIGURNOSNA PROVERA 2: Trenutna šifra
+        const isPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
+        if (!isPasswordCorrect) {
+            console.log('Pogrešna trenutna šifra');
+            return res.redirect('/admin/profile/edit');
         }
 
-        user.username = username;
-        user.email = email;
+        // Ako je prošla sigurnosna provera, nastavi sa ažuriranjem
 
-        // Ako želi da promeni šifru
-        if (currentPassword && newPassword) {
-            // Proveri trenutnu šifru
-            const isMatch = await bcrypt.compare(currentPassword, user.password);
-            if (!isMatch) {
-                console.log('Pogrešna trenutna šifra');
-                return res.redirect('/admin/profile');  // stavljamo ispred return da bi prekinuli dalju egzekuciju funkcije
+        // AŽURIRANJE USERNAME-A
+        if (username && username !== user.username) {
+            if (username.length < 3 || username.length > 20) {
+                console.log('Username mora imati između 3 i 20 karaktera');
+                return res.redirect('/admin/profile/edit');
+            }
+            user.username = username;
+            req.session.user.username = username;
+        }
+
+        // AŽURIRANJE EMAIL-A
+        if (email && email !== user.email) {
+            // Proveri da li novi email već postoji
+            const existingUser = await User.findOne({ 
+                email: email, 
+                _id: { $ne: user._id } 
+            });
+            if (existingUser) {
+                console.log('Email već postoji u bazi');
+                return res.redirect('/admin/profile/edit');
+            }
+            user.email = email;
+            req.session.user.email = email;
+        }
+
+        // AŽURIRANJE ŠIFRE (opciono)
+        if (newPassword) {
+            // Proveri da li su obe nove šifre unete
+            if (!confirmNewPassword) {
+                console.log('Potvrdi novu šifru');
+                return res.redirect('/admin/profile/edit');
             }
 
             // Proveri da li se nove šifre poklapaju
-            if (newPassword !== confirmPassword) {
+            if (newPassword !== confirmNewPassword) {
                 console.log('Nove šifre se ne poklapaju');
-                return res.redirect('/admin/profile');
+                return res.redirect('/admin/profile/edit');
             }
 
             // Validacija dužine
             if (newPassword.length < 5) {
-                console.log('Šifra mora imati najmanje 5 karaktera');
-                return res.redirect('/admin/profile');
+                console.log('Nova šifra mora imati najmanje 5 karaktera');
+                return res.redirect('/admin/profile/edit');
+            }
+
+            // Ne dozvoli istu šifru kao trenutna
+            const isSamePassword = await bcrypt.compare(newPassword, user.password);
+            if (isSamePassword) {
+                console.log('Nova šifra mora biti različita od trenutne');
+                return res.redirect('/admin/profile/edit');
             }
 
             // Hash nova šifra
@@ -87,12 +147,8 @@ const update = async (req, res) => {
             user.password = await bcrypt.hash(newPassword, salt);
         }
 
-        // Sačuvaj izmene\
+        // Sačuvaj sve izmene
         await user.save();
-
-        // Ažuriraj session
-        req.session.user.username = user.username;
-        req.session.user.email = user.email;
 
         req.session.save(() => {
             console.log('Profil uspešno ažuriran');
@@ -100,9 +156,14 @@ const update = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        res.redirect('/admin/profile');
+        console.error('Greška pri ažuriranju profila:', error);
+        res.redirect('/admin/profile/edit');
     }
 };
 
-module.exports = { index, uploadImage, update };
+module.exports = { 
+    index, 
+    uploadImage,
+    showEdit,
+    update
+};

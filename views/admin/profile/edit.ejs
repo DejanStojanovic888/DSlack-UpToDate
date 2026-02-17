@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/admin/main.css">
+</head>
+<body>
+    <%- include('/admin/profile/profileEditNavbar.ejs') %>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card mb-5">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Edit Profile</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <strong>Trenutne informacije:</strong><br>
+                            Username: <strong><%= user.username.substring(0, 1) %>*****</strong><br>
+                            <% 
+                                const emailParts = user.email.split('@');
+                                const localPart = emailParts[0];
+                                const domain = emailParts[1];
+                            %>
+                            Email: <strong><%= localPart.substring(0, 1) %>********@<%= domain %></strong>
+                        </div>
+
+                        <form action="/admin/profile/edit" method="POST">
+                            
+                            <h6 class="mb-3">Nove informacije</h6>
+
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" 
+                                       name="username" 
+                                       class="form-control" 
+                                       placeholder="Unesi novi username (ili ostavi prazno)"
+                                       minlength="3"
+                                       maxlength="20">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" 
+                                       name="email" 
+                                       class="form-control" 
+                                       placeholder="Unesi novi email (ili ostavi prazno)">
+                            </div>
+
+                            <hr>
+                            <h6 class="mb-3">Promeni šifru (opciono)</h6>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nova šifra</label>
+                                <input type="password" 
+                                       name="newPassword" 
+                                       class="form-control"
+                                       minlength="5"
+                                       placeholder="Unesi novu šifru (opciono)">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Potvrdi novu šifru</label>
+                                <input type="password" 
+                                       name="confirmNewPassword" 
+                                       class="form-control"
+                                       minlength="5"
+                                       placeholder="Potvrdi novu šifru">
+                            </div>
+
+                            <hr>
+                            <div class="alert alert-warning">
+                                <strong>Sigurnosna provera:</strong> Potvrdi svoj identitet da bi sačuvao izmene
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Trenutni Email *</label>
+                                <input type="email" 
+                                       name="currentEmail" 
+                                       class="form-control"
+                                       placeholder="Unesi trenutni email"
+                                       required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Trenutna Šifra *</label>
+                                <input type="password" 
+                                       name="currentPassword" 
+                                       class="form-control"
+                                       placeholder="Unesi trenutnu šifru"
+                                       required>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success">Sačuvaj izmene</button>
+                                <a href="/admin/profile" class="btn btn-secondary">Otkaži</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

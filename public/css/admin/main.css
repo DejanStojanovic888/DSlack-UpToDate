@@ -1,3 +1,19 @@
 .list-group-item.active {
     background-color: tomato;
 }
+/* Bleđi placeholderi */
+        ::placeholder {
+            color: #d0d0d0 !important;
+            opacity: 1;
+        }
+        
+        /* Za Firefox */
+        ::-moz-placeholder {
+            color: #d0d0d0 !important;
+            opacity: 1;
+        }
+        
+        /* Za IE */
+        :-ms-input-placeholder {
+            color: #d0d0d0 !important;
+        }

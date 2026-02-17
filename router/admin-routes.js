@@ -10,6 +10,10 @@ router.get('/profile', ProfileController.index);
 router.post('/profile/upload', upload.single('profileImage'), ProfileController.uploadImage); // .single znaci da očekujemo jedan fajl oznacen sa name="profileImage" iz inputa forme
 router.post('/profile/update', ProfileController.update);
 
+// Edit profile (GET i POST)
+router.get('/profile/edit', ProfileController.showEdit);
+router.post('/profile/edit', ProfileController.update);
+
 
 router.get('/dashboard', require('../controllers/admin/DashboardController.js'))
 router.get('/task', TaskController.index)

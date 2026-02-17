@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/bootstrap.min.css">
+</head>
+<body>
+    <%- include('/admin/profile/profileNavbar.ejs') %>
+    <div class="container mt-5">
+        <h1>Profile Settings</h1>
+        
+        <!-- Profilna slika -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Profilna slika</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <img src="<%= user.profileImage %>" 
+                         alt="Profile" 
+                         class="rounded-circle" 
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                </div>
+                
+                <form action="/admin/profile/upload" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Upload nova profilna slika</label>
+                        <input type="file" 
+                               name="profileImage" 
+                               class="form-control" 
+                               accept="image/*"   
+                               required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload sliku</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Trenutne informacije -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Informacije o nalogu</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Username:</strong>
+                        <p class="mb-0">
+                            <%= user.username.substring(0, 1) %>*****
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Email:</strong>
+                        <p class="mb-0">
+                            <% 
+                                const emailParts = user.email.split('@');
+                                const localPart = emailParts[0];
+                                const domain = emailParts[1];
+                            %>
+                            <%= localPart.substring(0, 1) %>********@<%= domain %>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Šifra:</strong>
+                        <p class="mb-0">••••••••••</p>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <a href="/admin/profile/edit" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
