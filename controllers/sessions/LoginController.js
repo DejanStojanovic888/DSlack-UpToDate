@@ -15,7 +15,7 @@ const LoginController = async (req, res) => {
         req.session.user = user;  
         req.session.save((err) => {
             if (err) {
-                console.log("Session Save Error:", err);
+                console.error("Session Save Error:", err);
                 return res.redirect("/login");
             }
             res.redirect("/admin/dashboard");  // redirect inside the callback to ensure it happens after the session is saved
