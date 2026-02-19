@@ -19,13 +19,8 @@
                     <div class="card-body">
                         <div class="alert alert-info">
                             <strong>Trenutne informacije:</strong><br>
-                            Username: <strong><%= user.username.substring(0, 1) %>*****</strong><br>
-                            <% 
-                                const emailParts = user.email.split('@');
-                                const localPart = emailParts[0];
-                                const domain = emailParts[1];
-                            %>
-                            Email: <strong><%= localPart.substring(0, 1) %>********@<%= domain %></strong>
+                            Username: <strong><%= user.username %></strong><br>  
+                            Email: <strong><%= user.email %></strong>
                         </div>
 
                         <form action="/admin/profile/edit" method="POST">

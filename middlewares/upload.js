@@ -1,35 +1,38 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-// Konfiguracija gde i kako se čuvaju fajlovi
+const uploadDir = path.join(__dirname, '../public/uploads/profiles/');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true }); // Automatski kreira folder ako ne postoji
+}
+
+// Konfiguracija gde i kako se čuvaju fajlovi 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/uploads/profiles/'); // folder gde se čuvaju slike
+        cb(null, uploadDir); // folder gde se čuvaju slike
     },
     filename: function (req, file, cb) {
-        // Unique ime: userId-timestamp.jpg
-        const uniqueName = req.session.user._id + '-' + Date.now() + path.extname(file.originalname);
-        cb(null, uniqueName);
+        const unique = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        let ext = path.extname(file.originalname);
+        if (!ext && file.mimetype) {
+            const mimeExt = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/gif': '.gif', 'image/webp': '.webp' };
+            ext = mimeExt[file.mimetype] || '.bin';
+        }
+        cb(null, unique + (ext || '.bin'));
     }
 });
 
 // Filter - samo slike i gifovi
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());  // Proveravamo ekstenziju fajla
-    const mimetype = allowedTypes.test(file.mimetype);  // mimetype je standardizovan način da se identifikuje stvarni sadržaj fajla
-    
-    if (extname && mimetype) {
-        cb(null, true);
-    } else {
-        cb(new Error('Samo slike i gifovi su dozvoljeni!'));
-    }
+const imageFilter = function (req, file, cb) {
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    cb(null, allowed.includes(file.mimetype)); // To accept the file pass `true`овако: cb(null, true)
 };
 
-const upload = multer({
+const upload = multer({  //uploadProfileMedia
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB
-    fileFilter: fileFilter
+    fileFilter: imageFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // max 5MB
 });
 
-module.exports = upload;
+module.exports = upload;  //uploadProfileMedia
